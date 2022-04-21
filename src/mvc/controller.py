@@ -26,3 +26,11 @@ class sercomController:
         self.view = view
         self.model.controller = self
         self.view.controller = self
+
+    def create_new_session(self):
+        """
+        "Forks" this process to create a new session that is independent of
+        the current session.
+        """
+        logger.debug("Creating new session")
+        self.model.create_new_session()

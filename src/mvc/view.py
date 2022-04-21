@@ -20,3 +20,26 @@ class sercomView(QMainWindow, Ui_main_window):
         logger.debug(f"Creating view")
         super().__init__()
         self.setupUi(self)
+        self.connect_signals()
+
+    def connect_signals(self):
+        """
+        Connects the signals and slots together.
+        """
+        logger.debug("Connecting signals and slots")
+        self.connect_signals_file_menu()
+
+    def connect_signals_file_menu(self):
+        """
+        Connects the signals and slots together for the file menu.
+        """
+        self.action_new_session.triggered.connect(self.create_new_session)
+        self.action_exit.triggered.connect(self.close)
+
+    def create_new_session(self):
+        """
+        "Forks" this process to create a new session that is independent of
+        the current session.
+        """
+        logger.debug("Creating new session")
+        self.controller.create_new_session()
