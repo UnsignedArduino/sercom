@@ -45,13 +45,14 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         Connects the signals and slots together for the port menu.
         """
-        self.action_disconnect.triggered.connect(self.disconnect)
+        self.action_disconnect.triggered.connect(self.disconnect_from_port)
 
     def update_serial_ports(self):
         """
         Updates the serial port listing in the "ports" menu.
         """
         self.menu_connect_to_port.clear()
+        self.menu_connect_actions = []
         for path, name in self.controller.get_serial_ports():
             port_action = self.menu_connect_to_port.addAction(name)
             port_action.triggered.connect(
@@ -59,6 +60,7 @@ class sercomView(QMainWindow, Ui_main_window):
             tip = f"Connect to the serial port {path}"
             port_action.setStatusTip(tip)
             port_action.setToolTip(tip)
+            self.menu_connect_actions.append(port_action)
         self.menu_connect_to_port.addSeparator()
         custom_port_action = self.menu_connect_to_port.addAction(
             "Enter &custom port...")
@@ -66,28 +68,32 @@ class sercomView(QMainWindow, Ui_main_window):
         tip = "Enter a custom port path to connect to. "
         custom_port_action.setStatusTip(tip)
         custom_port_action.setToolTip(tip)
+        self.menu_connect_actions.append(custom_port_action)
         self.menu_connect_to_port.addSeparator()
-        refresh_ports_action = self.menu_connect_to_port.addAction(
+        self.refresh_ports_action = self.menu_connect_to_port.addAction(
             "&Refresh port list...")
-        refresh_ports_action.triggered.connect(self.update_serial_ports)
+        self.refresh_ports_action.triggered.connect(self.update_serial_ports)
         tip = "Refresh the list of serial ports. "
-        refresh_ports_action.setStatusTip(tip)
-        refresh_ports_action.setToolTip(tip)
+        self.refresh_ports_action.setStatusTip(tip)
+        self.refresh_ports_action.setToolTip(tip)
+        self.menu_connect_actions.append(self.refresh_ports_action)
 
     def update_menu_states(self):
         """
         Updates the menu states.
         """
         connected = self.controller.model.connected
-        self.menu_connect_to_port.setEnabled(not connected)
+        for action in self.menu_connect_actions:
+            if action != self.refresh_ports_action:
+                action.setEnabled(not connected)
         self.action_disconnect.setEnabled(connected)
 
     def after_controller_initialization(self):
         """
         Stuff to run after the controller is initialized.
         """
-        self.update_menu_states()
         self.update_serial_ports()
+        self.update_menu_states()
 
     def set_status(self, status: str):
         """
@@ -134,7 +140,7 @@ class sercomView(QMainWindow, Ui_main_window):
         self.set_status(f"Successfully connected to port {port}!")
         self.update_menu_states()
 
-    def disconnect(self):
+    def disconnect_from_port(self):
         """
         Disconnects from the connected port.
         """
