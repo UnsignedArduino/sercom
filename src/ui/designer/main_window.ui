@@ -36,8 +36,17 @@
      <string>&amp;Port</string>
     </property>
     <widget class="QMenu" name="menu_connect_to_port">
+     <property name="toolTip">
+      <string>Connect to a serial port.</string>
+     </property>
+     <property name="statusTip">
+      <string>Connect to a serial port.</string>
+     </property>
      <property name="title">
       <string>&amp;Connect to port</string>
+     </property>
+     <property name="toolTipsVisible">
+      <bool>true</bool>
      </property>
     </widget>
     <addaction name="menu_connect_to_port"/>
@@ -51,10 +60,22 @@
    <property name="text">
     <string>&amp;New session...</string>
    </property>
+   <property name="toolTip">
+    <string>Create a new session.</string>
+   </property>
+   <property name="statusTip">
+    <string>Create a new session.</string>
+   </property>
   </action>
   <action name="action_exit">
    <property name="text">
     <string>&amp;Exit</string>
+   </property>
+   <property name="toolTip">
+    <string>Disconnect and exit.</string>
+   </property>
+   <property name="statusTip">
+    <string>Disconnect and exit.</string>
    </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>
@@ -68,6 +89,12 @@
   <action name="action_disconnect">
    <property name="text">
     <string>&amp;Disconnect</string>
+   </property>
+   <property name="toolTip">
+    <string>Disconnect from the connected serial port.</string>
+   </property>
+   <property name="statusTip">
+    <string>Disconnect from the connected serial port.</string>
    </property>
   </action>
  </widget>

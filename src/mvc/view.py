@@ -25,7 +25,6 @@ class sercomView(QMainWindow, Ui_main_window):
         super().__init__()
         self.setupUi(self)
         self.connect_signals()
-        self.prepare_status()
 
     def connect_signals(self):
         """
@@ -50,14 +49,23 @@ class sercomView(QMainWindow, Ui_main_window):
             port_action = self.menu_connect_to_port.addAction(name)
             port_action.triggered.connect(
                 lambda _, p=path: self.connect_to_port(p))
+            tip = f"Connect to the serial port {path}"
+            port_action.setStatusTip(tip)
+            port_action.setToolTip(tip)
         self.menu_connect_to_port.addSeparator()
         custom_port_action = self.menu_connect_to_port.addAction(
             "Enter &custom port...")
         custom_port_action.triggered.connect(self.enter_custom_port)
+        tip = "Enter a custom port path to connect to. "
+        custom_port_action.setStatusTip(tip)
+        custom_port_action.setToolTip(tip)
         self.menu_connect_to_port.addSeparator()
         refresh_ports_action = self.menu_connect_to_port.addAction(
             "&Refresh port list...")
         refresh_ports_action.triggered.connect(self.update_serial_ports)
+        tip = "Refresh the list of serial ports. "
+        refresh_ports_action.setStatusTip(tip)
+        refresh_ports_action.setToolTip(tip)
 
     def after_controller_initialization(self):
         """
@@ -65,38 +73,13 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         self.update_serial_ports()
 
-    def prepare_status(self):
-        """
-        Prepare the status bar.
-        """
-        self.last_message = None
-        self.last_message_time = 0
-        self.update_status()
-        status_timer = QTimer(self)
-        status_timer.timeout.connect(self.update_status)
-        period = 1000
-        status_timer.start(period)
-        logger.debug(f"Starting status timer {status_timer} at {period} ms")
-
-    def update_status(self):
-        """
-        Updates the status.
-        """
-        if self.last_message is None:
-            self.status_bar.clearMessage()
-        else:
-            time = time_as_string(round(unix() - self.last_message_time))
-            self.status_bar.showMessage(f"{self.last_message} ({time})")
-
     def set_status(self, status: str):
         """
         Set the current status.
 
         :param status: A string.
         """
-        self.last_message = status
-        self.last_message_time = unix()
-        self.update_status()
+        self.status_bar.showMessage(f"{status}")
 
     def create_new_session(self):
         """
