@@ -32,6 +32,7 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         logger.debug("Connecting signals and slots")
         self.connect_signals_file_menu()
+        self.connect_signals_port_menu()
 
     def connect_signals_file_menu(self):
         """
@@ -39,6 +40,12 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         self.action_new_session.triggered.connect(self.create_new_session)
         self.action_exit.triggered.connect(self.close)
+
+    def connect_signals_port_menu(self):
+        """
+        Connects the signals and slots together for the port menu.
+        """
+        self.action_disconnect.triggered.connect(self.disconnect)
 
     def update_serial_ports(self):
         """
@@ -67,10 +74,19 @@ class sercomView(QMainWindow, Ui_main_window):
         refresh_ports_action.setStatusTip(tip)
         refresh_ports_action.setToolTip(tip)
 
+    def update_menu_states(self):
+        """
+        Updates the menu states.
+        """
+        connected = self.controller.model.connected
+        self.menu_connect_to_port.setEnabled(not connected)
+        self.action_disconnect.setEnabled(connected)
+
     def after_controller_initialization(self):
         """
         Stuff to run after the controller is initialized.
         """
+        self.update_menu_states()
         self.update_serial_ports()
 
     def set_status(self, status: str):
@@ -113,5 +129,17 @@ class sercomView(QMainWindow, Ui_main_window):
 
         :param port: The port to connect to.
         """
-        logger.debug(f"Connecting to port {port}")
-        self.set_status(f"Connecting to port {port}")
+        self.set_status(f"Connecting to port {port}...")
+        self.controller.connect(port)
+        self.set_status(f"Successfully connected to port {port}!")
+        self.update_menu_states()
+
+    def disconnect(self):
+        """
+        Disconnects from the connected port.
+        """
+        port = self.controller.model.port.name
+        self.set_status(f"Disconnecting from port {port}...")
+        self.controller.disconnect()
+        self.set_status(f"Successfully disconnected from port {port}!")
+        self.update_menu_states()

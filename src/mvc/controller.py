@@ -42,3 +42,17 @@ class sercomController:
         Get the serial ports.
         """
         return self.model.get_serial_ports()
+
+    def connect(self, path: str):
+        """
+        Attempts to connect to a serial port.
+
+        :param path: The path, as a str. (ex. "COM8" on Windows)
+        """
+        self.model.connect(path)
+
+    def disconnect(self):
+        """
+        Attempts to disconnect from the connected serial port.
+        """
+        self.model.disconnect()
