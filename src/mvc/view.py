@@ -2,6 +2,7 @@ import logging
 import sys
 from traceback import format_exception
 
+from PyQt5.Qt import QTextCursor
 from PyQt5.QtWidgets import QMainWindow
 from serial.serialutil import SerialException
 
@@ -26,6 +27,8 @@ class sercomView(QMainWindow, Ui_main_window):
         super().__init__()
         self.setupUi(self)
         self.connect_signals()
+        self.text_cursor = QTextCursor(self.text_edit.document())
+        self.auto_scroll = True
 
     def connect_signals(self):
         """
@@ -93,6 +96,7 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         Stuff to run after the controller is initialized.
         """
+        self.controller.model.received_text.connect(self.on_received_text)
         self.update_serial_ports()
         self.update_menu_states()
 
@@ -160,3 +164,13 @@ class sercomView(QMainWindow, Ui_main_window):
         self.set_status(f"Successfully disconnected from port {port}!")
         self.update_menu_states()
         self.text_edit.setPlaceholderText("Not connected to a port.")
+
+    def on_received_text(self, text: str):
+        """
+        Callback when we receive text.
+
+        :param text: A str.
+        """
+        self.text_cursor.insertText(text)
+        if self.auto_scroll:
+            self.text_edit.ensureCursorVisible()

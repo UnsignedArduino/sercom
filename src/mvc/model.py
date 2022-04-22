@@ -1,6 +1,7 @@
 import logging
+from threading import Thread
 
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 from serial import Serial
 from serial.tools.list_ports import comports
 
@@ -9,11 +10,16 @@ from utils.process import launch_command, launch_detached
 
 logger = create_logger(name=__name__, level=logging.DEBUG)
 
+NEWLINE_CR = 0
+NEWLINE_LF = 1
+NEWLINE_CRLF = 2
+
 
 class sercomModel(QObject):
     """
     sercom's model is where the serial port stuff happens.
     """
+    received_text = pyqtSignal(str)
 
     def __init__(self):
         """
@@ -22,6 +28,7 @@ class sercomModel(QObject):
         logger.debug(f"Creating model")
         super().__init__()
         self.port = Serial()
+        self.newline_mode = NEWLINE_CRLF
 
     def after_controller_initialization(self):
         """
@@ -53,7 +60,34 @@ class sercomModel(QObject):
         """
         logger.debug(f"Attempting to connect to port {path}")
         self.port = Serial(path)
+        self.port.timeout = 1
         logger.info(f"Successfully connect to port {self.port.name}!")
+        self.start_read_thread()
+
+    def start_read_thread(self):
+        """
+        Starts the read thread.
+        """
+        t = Thread(target=self.read_thread, daemon=True)
+        logger.debug(f"Starting read thread {t}")
+        t.start()
+
+    def read_thread(self):
+        """
+        This function will read the data received and emit a signal.
+        """
+        while self.port.is_open:
+            b = self.port.read(self.port.in_waiting or 1)
+            if not b:
+                continue
+            b = b.decode()
+            if self.newline_mode == NEWLINE_CR:
+                b = b.replace("\r", "\n")
+            elif self.newline_mode == NEWLINE_LF:
+                pass
+            elif self.newline_mode == NEWLINE_CRLF:
+                b = b.replace("\r", "")
+            self.received_text.emit(b)
 
     @property
     def connected(self) -> bool:
