@@ -26,6 +26,8 @@ class sercomController:
         self.view = view
         self.model.controller = self
         self.view.controller = self
+        self.model.after_controller_initialization()
+        self.view.after_controller_initialization()
 
     def create_new_session(self):
         """
@@ -34,3 +36,9 @@ class sercomController:
         """
         logger.debug("Creating new session")
         self.model.create_new_session()
+
+    def get_serial_ports(self) -> list[tuple[str, str]]:
+        """
+        Get the serial ports.
+        """
+        return self.model.get_serial_ports()

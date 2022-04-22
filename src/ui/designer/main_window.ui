@@ -31,7 +31,20 @@
     <addaction name="separator"/>
     <addaction name="action_exit"/>
    </widget>
+   <widget class="QMenu" name="menu_port">
+    <property name="title">
+     <string>&amp;Port</string>
+    </property>
+    <widget class="QMenu" name="menu_connect_to_port">
+     <property name="title">
+      <string>&amp;Connect to port</string>
+     </property>
+    </widget>
+    <addaction name="menu_connect_to_port"/>
+    <addaction name="action_disconnect"/>
+   </widget>
    <addaction name="menu_file"/>
+   <addaction name="menu_port"/>
   </widget>
   <widget class="QStatusBar" name="status_bar"/>
   <action name="action_new_session">
@@ -51,6 +64,16 @@
    </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="action_enter_custom_port">
+   <property name="text">
+    <string>Enter &amp;custom port...</string>
+   </property>
+  </action>
+  <action name="action_disconnect">
+   <property name="text">
+    <string>&amp;Disconnect</string>
    </property>
   </action>
  </widget>
