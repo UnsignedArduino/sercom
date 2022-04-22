@@ -58,8 +58,6 @@ class Ui_main_window(object):
         self.menu_port.setTitle(_translate("main_window", "&Port"))
         self.menu_connect_to_port.setTitle(_translate("main_window", "&Connect to port"))
         self.action_new_session.setText(_translate("main_window", "&New session..."))
-        self.action_new_session.setShortcut(_translate("main_window", "Ctrl+N"))
         self.action_exit.setText(_translate("main_window", "&Exit"))
-        self.action_exit.setShortcut(_translate("main_window", "Ctrl+Q"))
         self.action_enter_custom_port.setText(_translate("main_window", "Enter &custom port..."))
         self.action_disconnect.setText(_translate("main_window", "&Disconnect"))
