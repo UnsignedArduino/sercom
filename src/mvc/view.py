@@ -219,6 +219,7 @@ class sercomView(QMainWindow, Ui_main_window):
             self.set_status(f"Successfully connected to port {port}!")
             self.update_menu_states()
             self.text_edit.setPlaceholderText("Nothing was received.")
+            self.setWindowTitle(f"sercom - {port}")
 
     def disconnect_from_port(self):
         """
@@ -230,6 +231,7 @@ class sercomView(QMainWindow, Ui_main_window):
         self.set_status(f"Successfully disconnected from port {port}!")
         self.update_menu_states()
         self.text_edit.setPlaceholderText("Not connected to a port.")
+        self.setWindowTitle(f"sercom")
 
     def open_set_baud_rate_dialog(self):
         """
