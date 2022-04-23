@@ -1,38 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>custom_port_dialog</class>
- <widget class="QDialog" name="custom_port_dialog">
+ <class>baud_rate_dialog</class>
+ <widget class="QDialog" name="baud_rate_dialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>174</width>
     <height>69</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>sercom: Enter a custom port</string>
+   <string>sercom: Set a baud rate</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="main_hlayout">
      <item>
-      <widget class="QLabel" name="custom_port_label">
+      <widget class="QLabel" name="baud_rate_label">
        <property name="text">
-        <string>&amp;Enter a custom port:</string>
+        <string>&amp;Baud rate:</string>
        </property>
        <property name="buddy">
-        <cstring>custom_port_lineedit</cstring>
+        <cstring>baud_rate_combobox</cstring>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="custom_port_lineedit">
+      <widget class="QComboBox" name="baud_rate_combobox">
        <property name="toolTip">
-        <string>Type a port path</string>
+        <string>Type or select a baud rate</string>
        </property>
        <property name="statusTip">
-        <string>Type a port path</string>
+        <string>Type or select a baud rate</string>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="placeholderText">
+        <string>Type a baud rate...</string>
        </property>
       </widget>
      </item>
@@ -55,12 +61,12 @@
   <connection>
    <sender>button_box</sender>
    <signal>accepted()</signal>
-   <receiver>custom_port_dialog</receiver>
+   <receiver>baud_rate_dialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>51</y>
+     <x>164</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -71,15 +77,15 @@
   <connection>
    <sender>button_box</sender>
    <signal>rejected()</signal>
-   <receiver>custom_port_dialog</receiver>
+   <receiver>baud_rate_dialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>295</x>
-     <y>57</y>
+     <x>164</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
+     <x>173</x>
      <y>68</y>
     </hint>
    </hints>

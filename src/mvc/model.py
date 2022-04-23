@@ -56,7 +56,8 @@ class sercomModel(QObject):
         :param path: The path, as a str. (ex. "COM8" on Windows)
         """
         logger.debug(f"Attempting to connect to port {path}")
-        self.port = Serial(path)
+        self.port.port = path
+        self.port.open()
         self.port.timeout = 1
         logger.info(f"Successfully connect to port {self.port.name}!")
         self.start_read_thread()

@@ -115,7 +115,7 @@
       <string>&amp;Line ending</string>
      </property>
     </widget>
-    <addaction name="actionBaud_rate"/>
+    <addaction name="action_baud_rate"/>
     <addaction name="menu_byte_size"/>
     <addaction name="menu_parity"/>
     <addaction name="menu_stop_bits"/>
@@ -198,7 +198,7 @@
     <string>0</string>
    </property>
   </action>
-  <action name="actionBaud_rate">
+  <action name="action_baud_rate">
    <property name="text">
     <string>Baud &amp;rate...</string>
    </property>

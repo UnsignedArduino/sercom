@@ -63,6 +63,15 @@ class sercomController:
         """
         self.model.disconnect()
 
+    def set_baud_rate(self, rate: int):
+        """
+        Sets the baud rate.
+
+        :param rate: An integer, can be custom or from utils/serial_config
+        """
+        logger.info(f"Setting baud rate to {rate}")
+        self.model.port.baudrate = rate
+
     def set_byte_size(self, size: int):
         """
         Sets the byte size.

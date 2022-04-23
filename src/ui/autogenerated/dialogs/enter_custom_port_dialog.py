@@ -42,3 +42,5 @@ class Ui_custom_port_dialog(object):
         _translate = QtCore.QCoreApplication.translate
         custom_port_dialog.setWindowTitle(_translate("custom_port_dialog", "sercom: Enter a custom port"))
         self.custom_port_label.setText(_translate("custom_port_dialog", "&Enter a custom port:"))
+        self.custom_port_lineedit.setToolTip(_translate("custom_port_dialog", "Type a port path"))
+        self.custom_port_lineedit.setStatusTip(_translate("custom_port_dialog", "Type a port path"))
