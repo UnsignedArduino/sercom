@@ -111,6 +111,7 @@ class sercomView(QMainWindow, Ui_main_window):
         Stuff to run after the controller is initialized.
         """
         self.controller.model.received_text.connect(self.on_received_text)
+        self.controller.model.disconnected.connect(self.disconnect_from_port)
         self.update_serial_ports()
         self.update_menu_states()
 

@@ -2,7 +2,7 @@ import logging
 from threading import Thread
 
 from PyQt5.QtCore import QObject, pyqtSignal
-from serial import Serial
+from serial import Serial, SerialException
 from serial.tools.list_ports import comports
 
 from utils.logger import create_logger
@@ -17,6 +17,7 @@ class sercomModel(QObject):
     sercom's model is where the serial port stuff happens.
     """
     received_text = pyqtSignal(str)
+    disconnected = pyqtSignal()
 
     def __init__(self):
         """
@@ -74,18 +75,23 @@ class sercomModel(QObject):
         """
         This function will read the data received and emit a signal.
         """
-        while self.port.is_open:
-            b = self.port.read(self.port.in_waiting or 1)
-            if not b:
-                continue
-            b = b.decode()
-            if self.newline_mode == NEWLINE_CR:
-                b = b.replace("\r", "\n")
-            elif self.newline_mode == NEWLINE_LF:
-                pass
-            elif self.newline_mode == NEWLINE_CRLF:
-                b = b.replace("\r", "")
-            self.received_text.emit(b)
+        try:
+            while self.port.is_open:
+                b = self.port.read(self.port.in_waiting or 1)
+                if not b:
+                    continue
+                b = b.decode()
+                if self.newline_mode == NEWLINE_CR:
+                    b = b.replace("\r", "\n")
+                elif self.newline_mode == NEWLINE_LF:
+                    pass
+                elif self.newline_mode == NEWLINE_CRLF:
+                    b = b.replace("\r", "")
+                self.received_text.emit(b)
+        except SerialException:
+            logger.exception("Error reading from serial port!")
+        finally:
+            self.disconnected.emit()
 
     @property
     def connected(self) -> bool:
