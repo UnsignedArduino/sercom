@@ -80,7 +80,7 @@ class sercomModel(QObject):
                 b = self.port.read(self.port.in_waiting or 1)
                 if not b:
                     continue
-                b = b.decode()
+                b = b.decode(errors="backslashreplace")
                 if self.newline_mode == NEWLINE_CR:
                     b = b.replace("\r", "\n")
                 elif self.newline_mode == NEWLINE_LF:

@@ -24,6 +24,7 @@ class Ui_main_window(object):
         self.text_edit.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.text_edit.setFrameShadow(QtWidgets.QFrame.Plain)
         self.text_edit.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        self.text_edit.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
         self.text_edit.setReadOnly(True)
         self.text_edit.setObjectName("text_edit")
         self.main_glayout.addWidget(self.text_edit, 0, 0, 1, 1)
