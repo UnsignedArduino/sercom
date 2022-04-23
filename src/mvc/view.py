@@ -1,7 +1,7 @@
 import logging
 import sys
 from traceback import format_exception
-from typing import Union
+from typing import Callable, Union
 
 from PyQt5.Qt import QTextCursor
 from PyQt5.QtWidgets import QMainWindow, QMenu, QActionGroup
@@ -120,7 +120,7 @@ class sercomView(QMainWindow, Ui_main_window):
 
         def make_options(menu: QMenu, dictionary: dict[str, Union[str, int]],
                          default: Union[str, int],
-                         tooltip: str):
+                         tooltip: str, callback: Callable):
             """
             Make an action group and add it to a menu.
 
@@ -129,6 +129,8 @@ class sercomView(QMainWindow, Ui_main_window):
             :param default: The default value.
             :param tooltip: The tool tip format, with {thing} as the replace
              value.
+            :param callback: A callback that will be passed in the key and
+             value from dictionary.
             """
             group = QActionGroup(menu)
             group.setExclusive(True)
@@ -137,7 +139,9 @@ class sercomView(QMainWindow, Ui_main_window):
                 if thing == default:
                     new_label += " (default)"
                 action = menu.addAction(new_label)
-                # action.triggered.connect()  # TODO: Add handler
+                action.triggered.connect(
+                    lambda _, l=label.replace("&", ""),
+                           t=thing: callback(l, t))
                 action.setCheckable(True)
                 action.setChecked(thing == default)
                 tip = tooltip.format(thing=label)
@@ -146,16 +150,19 @@ class sercomView(QMainWindow, Ui_main_window):
                 group.addAction(action)
 
         make_options(self.menu_byte_size, BYTE_SIZES, DEFAULT_BYTE_SIZE,
-                     "Set the byte size to {thing}")
+                     "Set the byte size to {thing}", self.set_byte_size)
         make_options(self.menu_parity, PARITIES, DEFAULT_PARITY,
-                     "Set the parity to {thing}")
+                     "Set the parity to {thing}", self.set_parity)
         make_options(self.menu_stop_bits, STOP_BITS, DEFAULT_STOP_BIT,
-                     "Set the number of stop bits to {thing}")
+                     "Set the number of stop bits to {thing}",
+                     self.set_stop_bits)
         make_options(self.menu_flow_control, FLOW_CONTROLS,
-                     DEFAULT_FLOW_CONTROL, "Set the flow control to {thing}")
+                     DEFAULT_FLOW_CONTROL, "Set the flow control to {thing}",
+                     self.set_flow_control)
         make_options(self.menu_line_ending, LINE_ENDINGS,
                      DEFAULT_LINE_ENDING, "Set the line ending sent and "
-                                          "received to {thing}")
+                                          "received to {thing}",
+                     self.set_line_ending)
 
     def set_status(self, status: str):
         """
@@ -221,6 +228,62 @@ class sercomView(QMainWindow, Ui_main_window):
         self.set_status(f"Successfully disconnected from port {port}!")
         self.update_menu_states()
         self.text_edit.setPlaceholderText("Not connected to a port.")
+
+    def set_byte_size(self, label: str, size: int):
+        """
+        Sets the byte size.
+
+        :param label: The labeled value.
+        :param size: An int, use the constants in utils/serial_config
+        """
+        self.set_status(f"Setting byte size to {label}...")
+        self.controller.set_byte_size(size)
+        self.set_status(f"Successfully set byte size to {label}!")
+
+    def set_parity(self, label: str, parity: str):
+        """
+        Sets the parity.
+
+        :param label: The labeled value.
+        :param parity: A str, use the constants in utils/serial_config
+        """
+        self.set_status(f"Setting parity to {label}...")
+        self.controller.set_parity(parity)
+        self.set_status(f"Successfully set parity to {label}!")
+
+    def set_stop_bits(self, label: str, stop_bits: Union[int, float]):
+        """
+        Sets the number of stop bits.
+
+        :param label: The labeled value.
+        :param stop_bits: An int or float, use the constants in
+         utils/serial_config
+        """
+        self.set_status(f"Setting number of stop bits to {label}...")
+        self.controller.set_stop_bits(stop_bits)
+        self.set_status(f"Successfully set number of stop bits to {label}!")
+
+    def set_flow_control(self, label: str, control: int):
+        """
+        Set the flow control.
+
+        :param label: The labeled value.
+        :param control: An int, use the constants in utils/serial_config
+        """
+        self.set_status(f"Setting flow control to {label}...")
+        self.controller.set_flow_control(control)
+        self.set_status(f"Successfully set flow control to {label}!")
+
+    def set_line_ending(self, label: str, ending: int):
+        """
+        Set the line ending.
+
+        :param label: The labeled value.
+        :param ending: An int, use the constants in utils/serial_config
+        """
+        self.set_status(f"Setting line ending to {label}...")
+        self.controller.set_line_ending(ending)
+        self.set_status(f"Successfully set line ending to {label}!")
 
     def on_received_text(self, text: str):
         """
