@@ -42,7 +42,9 @@ class SetBaudRateDialog(QDialog, Ui_baud_rate_dialog):
         otherwise Ok option is disabled.
         """
         self.button_box.button(QDialogButtonBox.Ok).setEnabled(
-            len(self.baud_rate_combobox.currentText()) > 0
+            len(self.baud_rate_combobox.currentText()) > 0 and
+            self.baud_rate_combobox.currentText().isnumeric() and
+            int(self.baud_rate_combobox.currentText()) > 0
         )
 
     def exec(self, cur_rate: int) -> tuple[bool, Optional[int]]:
