@@ -10,6 +10,7 @@ from mvc.controller import sercomController
 from mvc.model import sercomModel
 from mvc.view import sercomView
 from utils.dialogs import error_dlg
+from utils.system_info import log_system_info
 from utils.logger import create_logger
 
 logger = create_logger(name=__name__, level=logging.DEBUG)
@@ -37,6 +38,7 @@ def main():
     """
     The main function which is run when the program starts.
     """
+    log_system_info()
 
     logger.debug(f"Starting application")
 
