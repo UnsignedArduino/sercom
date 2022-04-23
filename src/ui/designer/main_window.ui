@@ -86,8 +86,45 @@
     <addaction name="menu_connect_to_port"/>
     <addaction name="action_disconnect"/>
    </widget>
+   <widget class="QMenu" name="menu_configuration">
+    <property name="title">
+     <string>&amp;Configuration</string>
+    </property>
+    <widget class="QMenu" name="menu_byte_size">
+     <property name="title">
+      <string>&amp;Byte size</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menu_flow_control">
+     <property name="title">
+      <string>&amp;Flow control</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menu_stop_bits">
+     <property name="title">
+      <string>&amp;Stop bits</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menu_parity">
+     <property name="title">
+      <string>&amp;Parity</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menu_line_ending">
+     <property name="title">
+      <string>&amp;Line ending</string>
+     </property>
+    </widget>
+    <addaction name="actionBaud_rate"/>
+    <addaction name="menu_byte_size"/>
+    <addaction name="menu_parity"/>
+    <addaction name="menu_stop_bits"/>
+    <addaction name="menu_flow_control"/>
+    <addaction name="menu_line_ending"/>
+   </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_port"/>
+   <addaction name="menu_configuration"/>
   </widget>
   <widget class="QStatusBar" name="status_bar"/>
   <action name="action_new_session">
@@ -129,6 +166,41 @@
    </property>
    <property name="statusTip">
     <string>Disconnect from the connected serial port.</string>
+   </property>
+  </action>
+  <action name="action0">
+   <property name="text">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="action0_2">
+   <property name="text">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="action0_3">
+   <property name="text">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="action0_4">
+   <property name="text">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="action0_5">
+   <property name="text">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="action0_6">
+   <property name="text">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="actionBaud_rate">
+   <property name="text">
+    <string>Baud &amp;rate...</string>
    </property>
   </action>
  </widget>

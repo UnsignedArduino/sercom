@@ -7,12 +7,9 @@ from serial.tools.list_ports import comports
 
 from utils.logger import create_logger
 from utils.process import launch_command, launch_detached
+from utils.serial_config import NEWLINE_LF, NEWLINE_CR, NEWLINE_CRLF
 
 logger = create_logger(name=__name__, level=logging.DEBUG)
-
-NEWLINE_CR = 0
-NEWLINE_LF = 1
-NEWLINE_CRLF = 2
 
 
 class sercomModel(QObject):
