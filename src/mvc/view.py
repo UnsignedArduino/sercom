@@ -374,7 +374,12 @@ class sercomView(QMainWindow, Ui_main_window):
 
         :param text: A str.
         """
-        self.text_cursor.insertText(text)
+        print(repr(text), tuple(ord(c) for c in text))
+        for char in text:
+            if ord(char) == 8:  # backspace
+                self.text_cursor.deletePreviousChar()
+            else:
+                self.text_cursor.insertText(char)
         if self.auto_scroll:
             self.text_edit.ensureCursorVisible()
 

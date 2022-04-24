@@ -173,3 +173,5 @@ class sercomController:
                 b"\r",
                 b"\r\n"
             )[self.model.newline_mode])
+        elif event.key() == QtCore.Qt.Key_Backspace:
+            self.model.send(chr(8).encode())
