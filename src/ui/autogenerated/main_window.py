@@ -20,14 +20,6 @@ class Ui_main_window(object):
         self.main_glayout = QtWidgets.QGridLayout(self.central_widget)
         self.main_glayout.setContentsMargins(0, 0, 0, 0)
         self.main_glayout.setObjectName("main_glayout")
-        self.text_edit = QtWidgets.QPlainTextEdit(self.central_widget)
-        self.text_edit.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.text_edit.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.text_edit.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        self.text_edit.setLineWrapMode(QtWidgets.QPlainTextEdit.NoWrap)
-        self.text_edit.setReadOnly(True)
-        self.text_edit.setObjectName("text_edit")
-        self.main_glayout.addWidget(self.text_edit, 0, 0, 1, 1)
         main_window.setCentralWidget(self.central_widget)
         self.menu_bar = QtWidgets.QMenuBar(main_window)
         self.menu_bar.setGeometry(QtCore.QRect(0, 0, 800, 21))
@@ -116,7 +108,6 @@ class Ui_main_window(object):
     def retranslateUi(self, main_window):
         _translate = QtCore.QCoreApplication.translate
         main_window.setWindowTitle(_translate("main_window", "sercom"))
-        self.text_edit.setPlaceholderText(_translate("main_window", "Not connected to a port."))
         self.menu_file.setTitle(_translate("main_window", "&File"))
         self.menu_port.setTitle(_translate("main_window", "&Port"))
         self.menu_connect_to_port.setToolTip(_translate("main_window", "Connect to a serial port."))

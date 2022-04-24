@@ -159,19 +159,10 @@ class sercomController:
         logger.debug(f"Serial port params: {notation}")
         self.model.serial_params_changed.emit(notation)
 
-    def send_key(self, event: QKeyEvent):
+    def send(self, data: bytes):
         """
-        Converts a key to a suitable byte sequence to send.
+        Sends data through the serial connection.
 
-        :param event: The key event.
+        :param data: A bytes object.
         """
-        if ord(" ") <= event.key() <= ord("~"):
-            self.model.send(event.text().encode())
-        elif event.key() == QtCore.Qt.Key_Return:
-            self.model.send((
-                b"\n",
-                b"\r",
-                b"\r\n"
-            )[self.model.newline_mode])
-        elif event.key() == QtCore.Qt.Key_Backspace:
-            self.model.send(chr(8).encode())
+        self.model.send(data)

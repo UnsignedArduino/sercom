@@ -15,6 +15,7 @@ from utils.logger import create_logger
 from utils.serial_config import BYTE_SIZES, DEFAULT_BYTE_SIZE, \
     PARITIES, DEFAULT_PARITY, STOP_BITS, DEFAULT_STOP_BIT, \
     FLOW_CONTROLS, DEFAULT_FLOW_CONTROL, LINE_ENDINGS, DEFAULT_LINE_ENDING
+from widgets.custom_plain_text_edit import CustomPlainTextEdit
 
 logger = create_logger(name=__name__, level=logging.DEBUG)
 
@@ -31,10 +32,10 @@ class sercomView(QMainWindow, Ui_main_window):
         logger.debug(f"Creating view")
         super().__init__()
         self.setupUi(self)
+        self.text_edit = CustomPlainTextEdit()
+        self.setCentralWidget(self.text_edit)
         self.create_configuration_menu()
         self.connect_signals()
-        self.text_cursor = QTextCursor(self.text_edit.document())
-        self.text_edit.keyPressEvent = self.on_text_edit_key_press_event
         self.auto_scroll = True
         self.local_echo = False
 
@@ -120,6 +121,8 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         Stuff to run after the controller is initialized.
         """
+        self.text_edit.controller = self.controller
+        self.text_edit.after_controller_initialization()
         self.controller.model.received_text.connect(self.on_received_text)
         self.controller.model.local_echo_text.connect(self.on_local_echo)
         self.controller.model.disconnected.connect(self.disconnect_from_port)
@@ -368,22 +371,17 @@ class sercomView(QMainWindow, Ui_main_window):
         else:
             self.set_status("Disabled local echo.")
 
-    def on_received_text(self, text: str):
+    def on_received_text(self, data: bytes):
         """
         Callback when we receive text.
 
-        :param text: A str.
+        :param data: The data received
         """
-        print(repr(text), tuple(ord(c) for c in text))
-        for char in text:
-            if ord(char) == 8:  # backspace
-                self.text_cursor.deletePreviousChar()
-            else:
-                self.text_cursor.insertText(char)
+        self.text_edit.process_tty_data(data)
         if self.auto_scroll:
             self.text_edit.ensureCursorVisible()
 
-    def on_local_echo(self, text: str):
+    def on_local_echo(self, text: bytes):
         """
         Callback when we actually send data, for "local echo."
 
@@ -392,13 +390,3 @@ class sercomView(QMainWindow, Ui_main_window):
         if not self.local_echo:
             return
         self.on_received_text(text)
-
-    def on_text_edit_key_press_event(self, event: QKeyEvent):
-        """
-        Handles the on key press event for the text edit.
-        """
-        if not self.controller.model.connected:
-            event.accept()
-            return
-        self.controller.send_key(event)
-        event.accept()

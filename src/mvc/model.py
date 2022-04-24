@@ -17,8 +17,8 @@ class sercomModel(QObject):
     """
     sercom's model is where the serial port stuff happens.
     """
-    received_text = pyqtSignal(str)
-    local_echo_text = pyqtSignal(str)
+    received_text = pyqtSignal(bytes)
+    local_echo_text = pyqtSignal(bytes)
     disconnected = pyqtSignal()
     serial_params_changed = pyqtSignal(str)
 
@@ -87,13 +87,12 @@ class sercomModel(QObject):
                 b = self.port.read(self.port.in_waiting or 1)
                 if not b:
                     continue
-                b = b.decode(errors="backslashreplace")
                 if self.newline_mode == NEWLINE_CR:
-                    b = b.replace("\r", "\n")
+                    b = b.replace(b"\r", b"\n")
                 elif self.newline_mode == NEWLINE_LF:
                     pass
                 elif self.newline_mode == NEWLINE_CRLF:
-                    b = b.replace("\r", "")
+                    b = b.replace(b"\r", b"")
                 self.received_text.emit(b)
         except SerialException:
             logger.exception("Error reading from serial port!")
@@ -108,13 +107,12 @@ class sercomModel(QObject):
             while self.port.is_open:
                 data = self.write_queue.get()
                 self.port.write(data)
-                data = data.decode()
                 if self.newline_mode == NEWLINE_CR:
-                    data = data.replace("\r", "\n")
+                    data = data.replace(b"\r", b"\n")
                 elif self.newline_mode == NEWLINE_LF:
                     pass
                 elif self.newline_mode == NEWLINE_CRLF:
-                    data = data.replace("\r", "")
+                    data = data.replace(b"\r", b"")
                 self.local_echo_text.emit(data)
         except SerialException:
             logger.exception("Error writing to serial port!")
