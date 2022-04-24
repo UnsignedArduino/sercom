@@ -4,7 +4,7 @@ from codecs import getincrementaldecoder
 from platform import system
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeyEvent, QMouseEvent, QTextCursor
+from PyQt5.QtGui import QKeyEvent, QMouseEvent, QTextCursor, QFont
 from PyQt5.QtWidgets import QPlainTextEdit, QFrame
 
 from utils.logger import create_logger
@@ -45,6 +45,9 @@ class CustomPlainTextEdit(QPlainTextEdit):
         self.setUndoRedoEnabled(False)
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.setPlaceholderText("Not connected to a port.")
+        font = QFont("Courier")
+        font.setStyleHint(QFont.Monospace)
+        self.setFont(font)
         # Copied from Mu at
         # https://github.com/mu-editor/mu/blob/9bc3e5cc7a480ea6a8084ed53ac135d5dc7b7167/mu/interface/panes.py#L180
         self.device_cursor_pos = self.textCursor().position()
