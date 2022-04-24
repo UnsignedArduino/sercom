@@ -86,6 +86,8 @@
       <bool>true</bool>
      </property>
     </widget>
+    <addaction name="action_port_status"/>
+    <addaction name="separator"/>
     <addaction name="menu_connect_to_port"/>
     <addaction name="action_disconnect"/>
    </widget>
@@ -118,6 +120,8 @@
       <string>&amp;Line ending</string>
      </property>
     </widget>
+    <addaction name="action_serial_configuration"/>
+    <addaction name="separator"/>
     <addaction name="action_baud_rate"/>
     <addaction name="menu_byte_size"/>
     <addaction name="menu_parity"/>
@@ -204,6 +208,22 @@
   <action name="action_baud_rate">
    <property name="text">
     <string>Baud &amp;rate...</string>
+   </property>
+  </action>
+  <action name="action_serial_configuration">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>D/P/S at B with F and E</string>
+   </property>
+  </action>
+  <action name="action_port_status">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>No port connected.</string>
    </property>
   </action>
  </widget>

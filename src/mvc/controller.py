@@ -8,6 +8,7 @@ from utils.logger import create_logger
 from utils.serial_config import BYTE_SIZES, DEFAULT_BYTE_SIZE, \
     PARITIES, DEFAULT_PARITY, STOP_BITS, DEFAULT_STOP_BIT, \
     FLOW_CONTROLS, DEFAULT_FLOW_CONTROL, LINE_ENDINGS, DEFAULT_LINE_ENDING, \
+    NEWLINE_LF, NEWLINE_CR, NEWLINE_CRLF, \
     XON_XOFF_SOFT_FLOW_CONTROL, \
     RTS_CTS_HARD_FLOW_CONTROL, DSR_DTR_HARD_FLOW_CONTROL
 
@@ -34,6 +35,7 @@ class sercomController:
         self.view.controller = self
         self.model.after_controller_initialization()
         self.view.after_controller_initialization()
+        self.changed_serial_param()
 
     def create_new_session(self):
         """
@@ -71,6 +73,7 @@ class sercomController:
         """
         logger.info(f"Setting baud rate to {rate}")
         self.model.port.baudrate = rate
+        self.changed_serial_param()
 
     def set_byte_size(self, size: int):
         """
@@ -80,6 +83,7 @@ class sercomController:
         """
         logger.info(f"Setting byte size to {size}")
         self.model.port.bytesize = size
+        self.changed_serial_param()
 
     def set_parity(self, parity: str):
         """
@@ -89,6 +93,7 @@ class sercomController:
         """
         logger.info(f"Setting parity to {parity}")
         self.model.port.parity = parity
+        self.changed_serial_param()
 
     def set_stop_bits(self, stop_bits: Union[int, float]):
         """
@@ -99,6 +104,7 @@ class sercomController:
         """
         logger.info(f"Setting stop bit count to {stop_bits}")
         self.model.port.stopbits = stop_bits
+        self.changed_serial_param()
 
     def set_flow_control(self, control: int):
         """
@@ -118,6 +124,7 @@ class sercomController:
         elif control == DSR_DTR_HARD_FLOW_CONTROL:
             logger.info("Enabling DSR/DTR (hardware) flow control")
             self.model.port.dsrdtr = True
+        self.changed_serial_param()
 
     def set_line_ending(self, ending: int):
         """
@@ -127,3 +134,28 @@ class sercomController:
         """
         logger.info(f"Setting line ending to {ending}")
         self.model.newline_mode = ending
+        self.changed_serial_param()
+
+    def changed_serial_param(self):
+        """
+        Emits a signal on the model that we changed serial params.
+        """
+        port = self.model.port
+        notation = f"{port.bytesize}/{port.parity}/{port.stopbits}"
+        notation += f" at {port.baudrate}"
+        if port.xonxoff:
+            notation += f" with XON/XOFF (soft)"
+        elif port.rtscts:
+            notation += f" with RTS/CTS (hard)"
+        elif port.dsrdtr:
+            notation += f" with DSR/DTR (hard)"
+        else:
+            notation += f" with no flow control"
+        if self.model.newline_mode == NEWLINE_CRLF:
+            notation += f" and \\r\\n ending"
+        elif self.model.newline_mode == NEWLINE_CR:
+            notation += f" and \\r ending"
+        else:
+            notation += f" and \\n ending"
+        logger.debug(f"Serial port params: {notation}")
+        self.model.serial_params_changed.emit(notation)

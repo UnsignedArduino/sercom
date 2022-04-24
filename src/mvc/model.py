@@ -18,6 +18,7 @@ class sercomModel(QObject):
     """
     received_text = pyqtSignal(str)
     disconnected = pyqtSignal()
+    serial_params_changed = pyqtSignal(str)
 
     def __init__(self):
         """

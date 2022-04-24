@@ -112,6 +112,8 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         self.controller.model.received_text.connect(self.on_received_text)
         self.controller.model.disconnected.connect(self.disconnect_from_port)
+        self.controller.model.serial_params_changed.connect(
+            lambda n: self.action_serial_configuration.setText(n))
         self.update_serial_ports()
         self.update_menu_states()
 
@@ -175,6 +177,16 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         self.status_bar.showMessage(f"{status}")
 
+    def set_port_status(self, status: str):
+        """
+        Set the current port status. (Reflected in the port menu)
+
+        :param status: A string.
+        """
+        self.action_port_status.setText(status)
+        self.action_port_status.setToolTip(status)
+        self.action_port_status.setStatusTip(status)
+
     def create_new_session(self):
         """
         "Forks" this process to create a new session that is independent of
@@ -212,12 +224,14 @@ class sercomView(QMainWindow, Ui_main_window):
             self.controller.connect(port)
         except SerialException as exc:
             self.set_status(f"Failed to connect to port {port}! ({exc})")
+            self.set_port_status(f"Failed to connect to port {port}!")
             logger.exception(f"Failed to connect to port {port}!")
             error_dlg("sercom: Failed to connect to port!",
                       f"Failed to connect to port {port}!",
                       "".join(format_exception(*sys.exc_info())))
         else:
-            self.set_status(f"Successfully connected to port {port}!")
+            self.set_status(f"Connected to port {port}!")
+            self.set_port_status(f"Successfully connected to port {port}!")
             self.update_menu_states()
             self.text_edit.setPlaceholderText("Nothing was received.")
             self.setWindowTitle(f"sercom - {port}")
@@ -228,6 +242,7 @@ class sercomView(QMainWindow, Ui_main_window):
         """
         port = self.controller.model.port.name
         self.set_status(f"Disconnecting from port {port}...")
+        self.set_port_status(f"Disconnected from port {port}.")
         self.controller.disconnect()
         self.set_status(f"Successfully disconnected from port {port}!")
         self.update_menu_states()
