@@ -44,6 +44,7 @@ class sercomView(QMainWindow, Ui_main_window):
         self.connect_signals_file_menu()
         self.connect_signals_port_menu()
         self.connect_signals_configuration_menu()
+        self.connect_signals_view_menu()
 
     def connect_signals_file_menu(self):
         """
@@ -64,6 +65,12 @@ class sercomView(QMainWindow, Ui_main_window):
         (that weren't already connected when making the menu)
         """
         self.action_baud_rate.triggered.connect(self.open_set_baud_rate_dialog)
+
+    def connect_signals_view_menu(self):
+        """
+        Connects the signals and slots together for the view menu.
+        """
+        self.action_auto_scroll.toggled.connect(self.set_auto_scroll)
 
     def update_serial_ports(self):
         """
@@ -330,6 +337,19 @@ class sercomView(QMainWindow, Ui_main_window):
         self.set_status(f"Setting line ending to {label}...")
         self.controller.set_line_ending(ending)
         self.set_status(f"Successfully set line ending to {label}!")
+
+    def set_auto_scroll(self, do: bool):
+        """
+        Sets auto scroll.
+
+        :param do: Whether to enable auto scroll or not.
+        """
+        self.auto_scroll = do
+        logger.debug(f"Set auto scroll to {do}")
+        if do:
+            self.set_status("Enabled auto scroll.")
+        else:
+            self.set_status("Disabled auto scroll.")
 
     def on_received_text(self, text: str):
         """

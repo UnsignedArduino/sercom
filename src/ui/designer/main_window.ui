@@ -129,9 +129,16 @@
     <addaction name="menu_flow_control"/>
     <addaction name="menu_line_ending"/>
    </widget>
+   <widget class="QMenu" name="menu_view">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="action_auto_scroll"/>
+   </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_port"/>
    <addaction name="menu_configuration"/>
+   <addaction name="menu_view"/>
   </widget>
   <widget class="QStatusBar" name="status_bar"/>
   <action name="action_new_session">
@@ -175,36 +182,6 @@
     <string>Disconnect from the connected serial port.</string>
    </property>
   </action>
-  <action name="action0">
-   <property name="text">
-    <string>0</string>
-   </property>
-  </action>
-  <action name="action0_2">
-   <property name="text">
-    <string>0</string>
-   </property>
-  </action>
-  <action name="action0_3">
-   <property name="text">
-    <string>0</string>
-   </property>
-  </action>
-  <action name="action0_4">
-   <property name="text">
-    <string>0</string>
-   </property>
-  </action>
-  <action name="action0_5">
-   <property name="text">
-    <string>0</string>
-   </property>
-  </action>
-  <action name="action0_6">
-   <property name="text">
-    <string>0</string>
-   </property>
-  </action>
   <action name="action_baud_rate">
    <property name="text">
     <string>Baud &amp;rate...</string>
@@ -224,6 +201,41 @@
    </property>
    <property name="text">
     <string>No port connected.</string>
+   </property>
+  </action>
+  <action name="action_auto_scroll">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Auto scroll</string>
+   </property>
+   <property name="toolTip">
+    <string>Whether to auto scroll when we receive.</string>
+   </property>
+   <property name="statusTip">
+    <string>Whether to auto scroll when we receive.</string>
+   </property>
+  </action>
+  <action name="action_zoom_in">
+   <property name="text">
+    <string>Zoom &amp;in</string>
+   </property>
+  </action>
+  <action name="action_zoom_out">
+   <property name="text">
+    <string>Zoom &amp;out</string>
+   </property>
+  </action>
+  <action name="action_zoom_reset">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Zoom &amp;reset</string>
    </property>
   </action>
  </widget>
