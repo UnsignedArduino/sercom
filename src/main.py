@@ -15,6 +15,10 @@ from utils.logger import create_logger
 
 logger = create_logger(name=__name__, level=logging.DEBUG)
 
+APPLICATION_NAME = "sercom"
+APPLICATION_VERSION = "dev"
+ORGANIZATION_NAME = "UnsignedArduino"
+
 
 def process_my_args() -> tuple[Namespace, list[str]]:
     """
@@ -38,17 +42,33 @@ def main():
     """
     The main function which is run when the program starts.
     """
-    log_system_info()
-
     logger.debug(f"Starting application")
 
     start_time = unix()
+
+    log_system_info()
 
     # https://stackoverflow.com/a/21166631/10291933
     parsed, un_parsed = process_my_args()
     qt_args = sys.argv[:1] + un_parsed
 
     app = QApplication(qt_args)
+
+    try:
+        logger.debug("Setting application ID for Windows")
+        from ctypes import windll
+        # mycompany.myproduct.subproduct.version
+        # Company identifier use reverse-domain notation (com.mycompany)
+        app_id = f"com.{ORGANIZATION_NAME}.{APPLICATION_NAME}.{APPLICATION_NAME}.{APPLICATION_VERSION}"
+        logger.debug(f"Windows app ID: {app_id}")
+        windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+    except ImportError:
+        logger.exception("Failed to set application ID for Windows!")
+
+    logger.debug("Setting application properties for Qt")
+    QApplication.setApplicationName(APPLICATION_NAME)
+    QApplication.setApplicationVersion(APPLICATION_VERSION)
+    QApplication.setOrganizationName(ORGANIZATION_NAME)
 
     def error(cls, exception, traceback):
         """
