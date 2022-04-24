@@ -3,7 +3,7 @@ import sys
 from traceback import format_exception
 from typing import Callable, Union
 
-from PyQt5.Qt import QTextCursor
+from PyQt5.Qt import QTextCursor, QKeyEvent
 from PyQt5.QtWidgets import QMainWindow, QMenu, QActionGroup
 from serial.serialutil import SerialException
 
@@ -34,7 +34,9 @@ class sercomView(QMainWindow, Ui_main_window):
         self.create_configuration_menu()
         self.connect_signals()
         self.text_cursor = QTextCursor(self.text_edit.document())
+        self.text_edit.keyPressEvent = self.on_text_edit_key_press_event
         self.auto_scroll = True
+        self.local_echo = False
 
     def connect_signals(self):
         """
@@ -71,6 +73,7 @@ class sercomView(QMainWindow, Ui_main_window):
         Connects the signals and slots together for the view menu.
         """
         self.action_auto_scroll.toggled.connect(self.set_auto_scroll)
+        self.action_local_echo.toggled.connect(self.set_local_echo)
 
     def update_serial_ports(self):
         """
@@ -118,6 +121,7 @@ class sercomView(QMainWindow, Ui_main_window):
         Stuff to run after the controller is initialized.
         """
         self.controller.model.received_text.connect(self.on_received_text)
+        self.controller.model.local_echo_text.connect(self.on_local_echo)
         self.controller.model.disconnected.connect(self.disconnect_from_port)
         self.controller.model.serial_params_changed.connect(
             lambda n: self.action_serial_configuration.setText(n))
@@ -351,6 +355,19 @@ class sercomView(QMainWindow, Ui_main_window):
         else:
             self.set_status("Disabled auto scroll.")
 
+    def set_local_echo(self, do: bool):
+        """
+        Sets local echo.
+
+        :param do: Whether to enable local echo or not.
+        """
+        self.local_echo = do
+        logger.debug(f"Set local echo to {do}")
+        if do:
+            self.set_status("Enabled local echo.")
+        else:
+            self.set_status("Disabled local echo.")
+
     def on_received_text(self, text: str):
         """
         Callback when we receive text.
@@ -360,3 +377,23 @@ class sercomView(QMainWindow, Ui_main_window):
         self.text_cursor.insertText(text)
         if self.auto_scroll:
             self.text_edit.ensureCursorVisible()
+
+    def on_local_echo(self, text: str):
+        """
+        Callback when we actually send data, for "local echo."
+
+        :param text: A str.
+        """
+        if not self.local_echo:
+            return
+        self.on_received_text(text)
+
+    def on_text_edit_key_press_event(self, event: QKeyEvent):
+        """
+        Handles the on key press event for the text edit.
+        """
+        if not self.controller.model.connected:
+            event.accept()
+            return
+        self.controller.send_key(event)
+        event.accept()

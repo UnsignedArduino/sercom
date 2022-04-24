@@ -1,14 +1,13 @@
 import logging
 from typing import Union
 
+from PyQt5.Qt import QKeyEvent
+from PyQt5 import QtCore
+
 from mvc.model import sercomModel
 from mvc.view import sercomView
-
 from utils.logger import create_logger
-from utils.serial_config import BYTE_SIZES, DEFAULT_BYTE_SIZE, \
-    PARITIES, DEFAULT_PARITY, STOP_BITS, DEFAULT_STOP_BIT, \
-    FLOW_CONTROLS, DEFAULT_FLOW_CONTROL, LINE_ENDINGS, DEFAULT_LINE_ENDING, \
-    NEWLINE_LF, NEWLINE_CR, NEWLINE_CRLF, \
+from utils.serial_config import NEWLINE_CR, NEWLINE_CRLF, \
     XON_XOFF_SOFT_FLOW_CONTROL, \
     RTS_CTS_HARD_FLOW_CONTROL, DSR_DTR_HARD_FLOW_CONTROL
 
@@ -159,3 +158,18 @@ class sercomController:
             notation += f" and \\n ending"
         logger.debug(f"Serial port params: {notation}")
         self.model.serial_params_changed.emit(notation)
+
+    def send_key(self, event: QKeyEvent):
+        """
+        Converts a key to a suitable byte sequence to send.
+
+        :param event: The key event.
+        """
+        if ord(" ") <= event.key() <= ord("~"):
+            self.model.send(event.text().encode())
+        elif event.key() == QtCore.Qt.Key_Return:
+            self.model.send((
+                b"\n",
+                b"\r",
+                b"\r\n"
+            )[self.model.newline_mode])

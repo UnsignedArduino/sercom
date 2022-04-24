@@ -1,5 +1,6 @@
 import logging
 from threading import Thread
+from queue import Queue
 
 from PyQt5.QtCore import QObject, pyqtSignal
 from serial import Serial, SerialException
@@ -17,6 +18,7 @@ class sercomModel(QObject):
     sercom's model is where the serial port stuff happens.
     """
     received_text = pyqtSignal(str)
+    local_echo_text = pyqtSignal(str)
     disconnected = pyqtSignal()
     serial_params_changed = pyqtSignal(str)
 
@@ -28,6 +30,7 @@ class sercomModel(QObject):
         super().__init__()
         self.port = Serial()
         self.newline_mode = NEWLINE_CRLF
+        self.write_queue = Queue()
 
     def after_controller_initialization(self):
         """
@@ -62,15 +65,18 @@ class sercomModel(QObject):
         self.port.open()
         self.port.timeout = 1
         logger.info(f"Successfully connect to port {self.port.name}!")
-        self.start_read_thread()
+        self.start_threads()
 
-    def start_read_thread(self):
+    def start_threads(self):
         """
         Starts the read thread.
         """
-        t = Thread(target=self.read_thread, daemon=True)
-        logger.debug(f"Starting read thread {t}")
-        t.start()
+        r = Thread(target=self.read_thread, daemon=True)
+        logger.debug(f"Starting read thread {r}")
+        r.start()
+        w = Thread(target=self.write_thread, daemon=True)
+        logger.debug(f"Starting write thread {w}")
+        w.start()
 
     def read_thread(self):
         """
@@ -93,6 +99,37 @@ class sercomModel(QObject):
             logger.exception("Error reading from serial port!")
         finally:
             self.disconnected.emit()
+
+    def write_thread(self):
+        """
+        This function will write the data queued up.
+        """
+        try:
+            while self.port.is_open:
+                data = self.write_queue.get()
+                self.port.write(data)
+                data = data.decode()
+                if self.newline_mode == NEWLINE_CR:
+                    data = data.replace("\r", "\n")
+                elif self.newline_mode == NEWLINE_LF:
+                    pass
+                elif self.newline_mode == NEWLINE_CRLF:
+                    data = data.replace("\r", "")
+                self.local_echo_text.emit(data)
+        except SerialException:
+            logger.exception("Error writing to serial port!")
+        # finally:
+        #     self.disconnected.emit()
+
+    def send(self, data: bytes):
+        """
+        Queue data to send through the serial port if we are connected.
+
+        :param data: A bytes object.
+        """
+        if not self.connected:
+            return
+        self.write_queue.put(data)
 
     @property
     def connected(self) -> bool:
