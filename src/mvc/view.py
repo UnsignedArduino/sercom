@@ -1,8 +1,10 @@
 import logging
 import sys
 from traceback import format_exception
-from typing import Callable, Union
+from typing import Callable, Union, Optional, Any
 
+from PyQt5.QtCore import QSettings
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMainWindow, QMenu, QActionGroup, QFontDialog
 from serial.serialutil import SerialException
 
@@ -37,6 +39,7 @@ class sercomView(QMainWindow, Ui_main_window):
         self.connect_signals()
         self.auto_scroll = True
         self.local_echo = False
+        self.settings = QSettings()
 
     def connect_signals(self):
         """
@@ -130,6 +133,7 @@ class sercomView(QMainWindow, Ui_main_window):
             lambda n: self.action_serial_configuration.setText(n))
         self.update_serial_ports()
         self.update_menu_states()
+        self.load_settings()
 
     def create_configuration_menu(self):
         """
@@ -159,8 +163,8 @@ class sercomView(QMainWindow, Ui_main_window):
                     new_label += " (default)"
                 action = menu.addAction(new_label)
                 action.triggered.connect(
-                    lambda _, l=label.replace("&", ""),
-                           t=thing: callback(l, t))
+                    lambda _, t=thing,
+                           l=label.replace("&", ""): callback(t, l))
                 action.setCheckable(True)
                 action.setChecked(thing == default)
                 tip = tooltip.format(thing=label)
@@ -182,6 +186,50 @@ class sercomView(QMainWindow, Ui_main_window):
                      DEFAULT_LINE_ENDING, "Set the line ending sent and "
                                           "received to {thing}",
                      self.set_line_ending)
+
+    def save_value(self, group: str, key: str, value: Any):
+        """
+        Saves the value in group.
+
+        :param group: The group to save in.
+        :param key: The key to save in.
+        :param value: The value to save as.
+        """
+        logger.debug(f"Saving {group}/{key} as {value}")
+        self.settings.beginGroup(group)
+        self.settings.setValue(key, value)
+        self.settings.endGroup()
+
+    def maybe_load_value(self, key: str, func: Callable, convert_to: type):
+        """
+        If the key exists, then we will call the function with the result.
+
+        :param key: The key name, as a string.
+        :param func: The function, that accepts one value.
+        :param convert_to: Converts the result of the function to that type.
+        """
+        logger.debug(f"Attempting to load key: {key}")
+        if self.settings.contains(key):
+            value = self.settings.value(key, type=convert_to)
+            logger.debug(f"Key {key} = {value} (type: {convert_to})")
+            func(value)
+        else:
+            logger.debug(f"Unable to find key {key}")
+
+    def load_settings(self):
+        self.settings.beginGroup("serial_port")
+        self.maybe_load_value("baud_rate", self.set_baud_rate, int)
+        self.maybe_load_value("byte_size", self.set_byte_size, int)
+        self.maybe_load_value("parity", self.set_parity, str)
+        self.maybe_load_value("stop_bits", self.set_stop_bits, float)
+        self.maybe_load_value("flow_control", self.set_flow_control, int)
+        self.maybe_load_value("line_ending", self.set_line_ending, int)
+        self.settings.endGroup()
+        self.settings.beginGroup("view")
+        self.maybe_load_value("auto_scroll", self.action_auto_scroll.setChecked, bool)
+        self.maybe_load_value("local_echo", self.action_local_echo.setChecked, bool)
+        self.maybe_load_value("font", self.set_font, QFont)
+        self.settings.endGroup()
 
     def set_status(self, status: str):
         """
@@ -288,62 +336,82 @@ class sercomView(QMainWindow, Ui_main_window):
         self.set_status(f"Setting baud rate to {rate}...")
         self.controller.set_baud_rate(rate)
         self.set_status(f"Successfully set baud rate to {rate}!")
+        self.save_value("serial_port", "baud_rate", rate)
 
-    def set_byte_size(self, label: str, size: int):
+    def set_byte_size(self, size: int, label: Optional[str] = None):
         """
         Sets the byte size.
 
-        :param label: The labeled value.
         :param size: An int, use the constants in utils/serial_config
+        :param label: The labeled value, optional.
         """
-        self.set_status(f"Setting byte size to {label}...")
+        if label is not None:
+            self.set_status(f"Setting byte size to {label}...")
         self.controller.set_byte_size(size)
-        self.set_status(f"Successfully set byte size to {label}!")
+        if label is not None:
+            self.set_status(f"Successfully set byte size to {label}!")
+        self.save_value("serial_port", "byte_size", size)
 
-    def set_parity(self, label: str, parity: str):
+    def set_parity(self, parity: str, label: Optional[str] = None):
         """
         Sets the parity.
 
-        :param label: The labeled value.
         :param parity: A str, use the constants in utils/serial_config
+        :param label: The labeled value, optional.
         """
-        self.set_status(f"Setting parity to {label}...")
+        if label is not None:
+            self.set_status(f"Setting parity to {label}...")
         self.controller.set_parity(parity)
-        self.set_status(f"Successfully set parity to {label}!")
+        if label is not None:
+            self.set_status(f"Successfully set parity to {label}!")
+        self.save_value("serial_port", "parity", parity)
 
-    def set_stop_bits(self, label: str, stop_bits: Union[int, float]):
+    def set_stop_bits(self, stop_bits: Union[int, float],
+                      label: Optional[str] = None):
         """
         Sets the number of stop bits.
 
-        :param label: The labeled value.
         :param stop_bits: An int or float, use the constants in
          utils/serial_config
+        :param label: The labeled value, optional.
         """
-        self.set_status(f"Setting number of stop bits to {label}...")
+        if label is not None:
+            self.set_status(f"Setting number of stop bits to {label}...")
+        if int(stop_bits) == stop_bits:
+            stop_bits = int(stop_bits)
         self.controller.set_stop_bits(stop_bits)
-        self.set_status(f"Successfully set number of stop bits to {label}!")
+        if label is not None:
+            self.set_status(f"Successfully set number of "
+                            f"stop bits to {label}!")
+        self.save_value("serial_port", "stop_bits", stop_bits)
 
-    def set_flow_control(self, label: str, control: int):
+    def set_flow_control(self, control: int, label: Optional[str] = None):
         """
         Set the flow control.
 
-        :param label: The labeled value.
         :param control: An int, use the constants in utils/serial_config
+        :param label: The labeled value, optional.
         """
-        self.set_status(f"Setting flow control to {label}...")
+        if label is not None:
+            self.set_status(f"Setting flow control to {label}...")
         self.controller.set_flow_control(control)
-        self.set_status(f"Successfully set flow control to {label}!")
+        if label is not None:
+            self.set_status(f"Successfully set flow control to {label}!")
+        self.save_value("serial_port", "flow_control", control)
 
-    def set_line_ending(self, label: str, ending: int):
+    def set_line_ending(self, ending: int, label: Optional[str] = None):
         """
         Set the line ending.
 
-        :param label: The labeled value.
         :param ending: An int, use the constants in utils/serial_config
+        :param label: The labeled value, optional.
         """
-        self.set_status(f"Setting line ending to {label}...")
+        if label is not None:
+            self.set_status(f"Setting line ending to {label}...")
         self.controller.set_line_ending(ending)
-        self.set_status(f"Successfully set line ending to {label}!")
+        if label is not None:
+            self.set_status(f"Successfully set line ending to {label}!")
+        self.save_value("serial_port", "line_ending", ending)
 
     def set_auto_scroll(self, do: bool):
         """
@@ -357,6 +425,7 @@ class sercomView(QMainWindow, Ui_main_window):
             self.set_status("Enabled auto scroll.")
         else:
             self.set_status("Disabled auto scroll.")
+        self.save_value("view", "auto_scroll", do)
 
     def set_local_echo(self, do: bool):
         """
@@ -370,6 +439,22 @@ class sercomView(QMainWindow, Ui_main_window):
             self.set_status("Enabled local echo.")
         else:
             self.set_status("Disabled local echo.")
+        self.save_value("view", "local_echo", do)
+
+    def set_font(self, font: QFont):
+        """
+        Sets the text edit's current font.
+
+        :param font: The new QFont.
+        """
+        display_name = f"{font.family()} {font.pointSize()}"
+        for attr in ("bold", "italic", "underline", "strikeOut"):
+            if getattr(font, attr)():
+                display_name += f" {attr.lower()}"
+        logger.debug(f"User selected font: {display_name}")
+        self.text_edit.setFont(font)
+        self.set_status(f"Successfully set font to {display_name}!")
+        self.save_value("view", "font", font)
 
     def change_font(self):
         """
@@ -381,13 +466,7 @@ class sercomView(QMainWindow, Ui_main_window):
                                             "sercom: Select a font",
                                             QFontDialog.MonospacedFonts)
         if success:
-            display_name = f"{font.family()} {font.pointSize()}"
-            for attr in ("bold", "italic", "underline", "strikeOut"):
-                if getattr(font, attr)():
-                    display_name += f" {attr.lower()}"
-            logger.debug(f"User selected font: {display_name}")
-            self.text_edit.setFont(font)
-            self.set_status(f"Successfully set font to {display_name}!")
+            self.set_font(font)
         else:
             logger.debug("User canceled selecting font")
             self.set_status("Canceled setting a font.")
