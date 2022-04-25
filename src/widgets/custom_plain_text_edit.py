@@ -24,6 +24,17 @@ VT100_HOME = b"\x1B[H"
 VT100_END = b"\x1B[F"
 
 
+def get_default_font() -> QFont:
+    """
+    Creates the default font object.
+
+    :return: A QFont object.
+    """
+    font = QFont("Courier")
+    font.setStyleHint(QFont.Monospace)
+    return font
+
+
 class CustomPlainTextEdit(QPlainTextEdit):
     """
     Our custom plain text edit.
@@ -45,9 +56,7 @@ class CustomPlainTextEdit(QPlainTextEdit):
         self.setUndoRedoEnabled(False)
         self.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.setPlaceholderText("Not connected to a port.")
-        font = QFont("Courier")
-        font.setStyleHint(QFont.Monospace)
-        self.setFont(font)
+        self.setFont(get_default_font())
         # Copied from Mu at
         # https://github.com/mu-editor/mu/blob/9bc3e5cc7a480ea6a8084ed53ac135d5dc7b7167/mu/interface/panes.py#L180
         self.device_cursor_pos = self.textCursor().position()

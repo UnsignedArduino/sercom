@@ -116,10 +116,17 @@
     <addaction name="separator"/>
     <addaction name="action_change_font"/>
    </widget>
+   <widget class="QMenu" name="menu_about">
+    <property name="title">
+     <string>&amp;About</string>
+    </property>
+    <addaction name="action_reset_application"/>
+   </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_port"/>
    <addaction name="menu_configuration"/>
    <addaction name="menu_view"/>
+   <addaction name="menu_about"/>
   </widget>
   <widget class="QStatusBar" name="status_bar"/>
   <action name="action_new_session">
@@ -236,6 +243,17 @@
    </property>
    <property name="statusTip">
     <string>Changes the font for the serial terminal.</string>
+   </property>
+  </action>
+  <action name="action_reset_application">
+   <property name="text">
+    <string>&amp;Reset application...</string>
+   </property>
+   <property name="toolTip">
+    <string>Clears all the application data. </string>
+   </property>
+   <property name="statusTip">
+    <string>Clears all the application data. </string>
    </property>
   </action>
  </widget>

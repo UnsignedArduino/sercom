@@ -34,3 +34,20 @@ def error_dlg(title: str, text: str, details: Optional[str] = None):
     dlg.setStandardButtons(QMessageBox.Ok)
     dlg.buttonClicked.connect(dlg.close)
     dlg.exec()
+
+
+def confirm_dangerous_dlg(title: str, text: str,
+                          details: Optional[str] = None) -> bool:
+    """
+    Pops up a dialog with
+
+    :param title: The title of the dialog.
+    :param text: The text of the dialog.
+    :param details: The details of the dialog. Pass None to show none.
+    :return:
+    """
+    dlg = make_dlg(title, text, details)
+    dlg.setIcon(QMessageBox.Warning)
+    dlg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    dlg.buttonClicked.connect(dlg.close)
+    return dlg.exec() == QMessageBox.Yes
